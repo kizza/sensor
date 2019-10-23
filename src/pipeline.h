@@ -3,9 +3,13 @@
 #include "board.h"
 #include "promise.h"
 
+Context debugLoop(Context context);
+
 Context initBoard(Context context);
 
 Context printError(Context error);
+
+Context waitForNextLoop(Context context);
 
 std::function<Context (Context)> delayBy(int milliseconds);
 

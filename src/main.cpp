@@ -4,21 +4,13 @@
 
 #include "Arduino.h"
 #include "env.inc"
-#include "config.inc"
 #include "promise.h"
 #include "internet.h"
 #include "mqtt.h"
 #include "sensors.h"
 #include "pipeline.h"
 
-int loops = 0;
-
 LEDBurst FlashAsConnected = { new int[5] {0, 0, 0, 1, 1}, 5 };
-
-Context debugLoop(Context context) {
-  Serial.printf("\nLoop %d\n", ++loops);
-  return context;
-}
 
 char* prefixedInteger(char* prefix, int value) {
   char value_str[21]; // enough to hold all numbers up to 64-bits
@@ -31,15 +23,6 @@ Context measure(Context context) {
   char prefix[64] = "Arduino|";
   char* message = prefixedInteger(prefix, readMoisture(sensorPin));
   publish(message);
-  return context;
-}
-
-Context waitForNextLoop(Context context) {
-  if (TESTING) {
-    delay(1000 * 8);
-  } else {
-    delay(1000 * 60 * 1 * 10);
-  }
   return context;
 }
 
