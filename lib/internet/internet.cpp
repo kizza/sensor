@@ -1,21 +1,19 @@
 #include "WiFi.h"
 #include "internet.h"
 #include "promise.h"
-#include "env.inc"
 
-Context initWiFi(Context context) {
+std::function<Context (Context)> initWiFi(const char* ssid, const char* password) {
   delay(10);
-  Serial.printf("Connecting to %s..", WIFI_SSID);
+  Serial.printf("Connecting to %s..", ssid);
 
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
 
   randomSeed(micros());
-
   Serial.printf(" connected with %s\n", WiFi.localIP().toString().c_str());
-  return context;
-}
 
+  return continuation();
+}

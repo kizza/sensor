@@ -3,6 +3,7 @@
  */
 
 #include "Arduino.h"
+#include "env.inc"
 #include "config.inc"
 #include "promise.h"
 #include "internet.h"
@@ -45,7 +46,7 @@ Context waitForNextLoop(Context context) {
 void setup() {
   promise()
     .then(initBoard)
-    .then(initWiFi)
+    .then(initWiFi(WIFI_SSID, WIFI_PASSWORD))
     .then(flashWith(FlashAsConnected))
     .then(delayBy(200))
     .then(initMqtt)
