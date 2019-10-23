@@ -43,13 +43,22 @@ Context waitForNextLoop(Context context) {
   return context;
 }
 
+MqttConnection mqtt = {
+  MQTT_SERVER,
+  MQTT_PORT,
+  MQTT_USER,
+  MQTT_PASSWORD,
+  MQTT_SERIAL_PUBLISH_CH,
+  MQTT_SERIAL_RECEIVER_CH
+};
+
 void setup() {
   promise()
     .then(initBoard)
     .then(initWiFi(WIFI_SSID, WIFI_PASSWORD))
     .then(flashWith(FlashAsConnected))
     .then(delayBy(200))
-    .then(initMqtt)
+    .then(initMqtt(mqtt))
     .then(delayBy(200))
     .thrown(printError);
 }

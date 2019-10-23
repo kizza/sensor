@@ -3,7 +3,6 @@
 #include "board.h"
 #include "promise.h"
 #include "mqtt.h"
-#include "env.inc"
 
 extern bool TESTING;
 
@@ -14,6 +13,8 @@ LEDBurst FlashAsBeep = { new int[3] {0, 0, 0}, 3 };
 void poll() {
   client.loop();
 }
+
+MqttConnection connection;
 
 void mqttCallback(char* topic, byte *payload, unsigned int length) {
   Serial.println("-------new message from broker-----");
@@ -36,11 +37,11 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
 
     // Attempt to connect
-    if (client.connect(clientId.c_str(), MQTT_USER,MQTT_PASSWORD)) {
+    if (client.connect(clientId.c_str(), connection.user, connection.password)) {
       Serial.println(" connected");
       flash(FlashAsBeep);
       client.publish("awake", "hello world");
-      // client.subscribe(MQTT_SERIAL_RECEIVER_CH);
+      // client.subscribe(connection.listenChannel);
     } else {
       Serial.print(" failed, error=");
       Serial.print(client.state());
@@ -57,15 +58,16 @@ void publish(char *message){
     Serial.printf("Debug: %s\n", message);
   } else {
     Serial.printf("Publishing %s\n", message);
-    client.publish(MQTT_SERIAL_PUBLISH_CH, message);
+    client.publish(connection.publishChannel, message);
   }
 }
 
-Context initMqtt(Context context) {
-  client.setServer(MQTT_SERVER, MQTT_PORT);
+std::function<Context (Context)> initMqtt(MqttConnection Connection) {
+  connection = Connection;
+  client.setServer(connection.server, connection.port);
   client.setCallback(mqttCallback);
   reconnect();
-  return context;
+  return continuation();
 }
 
 Context ensureConnected(Context context) {
@@ -77,4 +79,3 @@ Context ensureConnected(Context context) {
 
   return context;
 }
-
