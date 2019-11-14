@@ -5,6 +5,10 @@
 
 Context debugLoop(Context context);
 
+Context initDeepSleep(Context context);
+
+Context goToSleep(Context context);
+
 Context initBoard(Context context);
 
 Context printError(Context error);

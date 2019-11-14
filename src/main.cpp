@@ -35,15 +35,27 @@ MqttConnection mqtt = {
   MQTT_SERIAL_RECEIVER_CH
 };
 
+const int foo = A7;
+
+const int trigPin = 9;
+const int echoPin = 10;
+
 void setup() {
   promise()
+    .then(initDeepSleep)
     .then(initBoard)
-    .then(initWiFi(WIFI_SSID, WIFI_PASSWORD))
-    .then(flashWith(FlashAsConnected))
-    .then(delayBy(200))
-    .then(initMqtt(mqtt))
-    .then(delayBy(200))
-    .thrown(printError);
+    .then([](Context context) {
+      pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+      pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+      return context;
+    });
+
+    /* .then(initWiFi(WIFI_SSID, WIFI_PASSWORD)) */
+    /* .then(flashWith(FlashAsConnected)) */
+    /* .then(delayBy(200)) */
+    /* .then(initMqtt(mqtt)) */
+    /* .then(delayBy(200)) */
+    /* .thrown(printError); */
 }
 
 void loop()
@@ -52,20 +64,48 @@ void loop()
     .then(debugLoop)
     .then(debugWith("Beginning work..."))
     .then(turnOnLED)
-    .then(delayBy(1000))
-    .then(ensureConnected)
+    .then(measure)
     .then([](Context context) {
-      poll();
+      long duration;
+      int distance;
+
+      // Clears the trigPin
+      digitalWrite(trigPin, LOW);
+      delayMicroseconds(2);
+      // Sets the trigPin on HIGH state for 10 micro seconds
+      digitalWrite(trigPin, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigPin, LOW);
+      // Reads the echoPin, returns the sound wave travel time in microseconds
+      duration = pulseIn(echoPin, HIGH);
+      Serial.print("Duration was");
+      Serial.println(duration);
+
+      // Calculating the distance
+      distance= duration*0.034/2;
+      // Prints the distance on the Serial Monitor
+      Serial.print("Distance: ");
+      Serial.println(distance);
       return context;
     })
-    .then(measure)
-    .then(delayBy(1000))
     .then(turnOffLED)
-    .then(waitForNextLoop)
-    .thrown([](Context context) {
-      Serial.println("Error within loop...");
-      Serial.println(context.message);
-      delay(5000);
-      return context;
-    });
+    .then(delayBy(500));
+
+    /* .then(delayBy(1000)) */
+    /* .then(ensureConnected) */
+    /* .then([](Context context) { */
+    /*   poll(); */
+    /*   return context; */
+    /* }) */
+    /* .then(measure) */
+    /* .then(delayBy(1000)) */
+    /* .then(turnOffLED) */
+    /* // .then(waitForNextLoop) */
+    /* .then(goToSleep) */
+    /* .thrown([](Context context) { */
+    /*   Serial.println("Error within loop..."); */
+    /*   Serial.println(context.message); */
+    /*   delay(5000); */
+    /*   return context; */
+    /* }); */
 }

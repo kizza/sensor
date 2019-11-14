@@ -1,0 +1,3 @@
+ !/usr/bin/env bash
+
+~/.platformio/penv/bin/platformio run --target upload --target monitor
